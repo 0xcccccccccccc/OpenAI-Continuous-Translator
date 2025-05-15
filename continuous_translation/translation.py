@@ -1,6 +1,15 @@
 import logging
+import os
 import time
 import openai
+import json
+
+OPENAI_CLIENT_ARGS = os.environ.get("OPENAI_CLIENT_ARGS","{}")
+OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME","gpt-3.5-turbo")
+
+client = openai.OpenAI(
+    **json.loads(OPENAI_CLIENT_ARGS) 
+) if OPENAI_CLIENT_ARGS != "{}" else openai.ChatCompletion
 
 MARKDOWN_PROMPT = """
 Your task is to translate a Markdown file, while preserving the original formatting,
@@ -71,8 +80,8 @@ format: Return only the translated content, not including the original text."""
 
             time.sleep(3)  # Sleep for 3 seconds before each API call
             # 调用 ChatGPT API
-            completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+            completion = client.chat.completions.create(
+                model=OPENAI_MODEL_NAME,
                 messages=[
                     {
                         "role": "system",
